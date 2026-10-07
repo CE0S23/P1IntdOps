@@ -34,12 +34,36 @@ app.post('/usuarios', (req, res) => {
     });
 });
 
+// 3. GET /usuarios/:id - Obtener un usuario específico por ID
+app.get('/usuarios/:id', (req, res) => {
+    db.get("SELECT * FROM usuarios WHERE id = ?", [req.params.id], (err, row) => {
+        if (err) return sendResponse(res, 500, err.message);
+        if (!row) return sendResponse(res, 404, "Usuario no encontrado");
+        sendResponse(res, 200, row);
+    });
+});
 
+// 4. PUT /usuarios/:id - Actualizar un usuario por ID
+app.put('/usuarios/:id', (req, res) => {
+    const { nombre, rol_id } = req.body;
+    db.run("UPDATE usuarios SET nombre = ?, rol_id = ? WHERE id = ?", [nombre, rol_id, req.params.id], function(err) {
+        if (err) return sendResponse(res, 500, err.message);
+        if (this.changes === 0) return sendResponse(res, 404, "Usuario no encontrado");
+        sendResponse(res, 200, { mensaje: "Usuario actualizado exitosamente" });
+    });
+});
+
+// 5. DELETE /usuarios/:id - Eliminar un usuario por ID
 app.delete('/usuarios/:id', (req, res) => {
     db.run("DELETE FROM usuarios WHERE id = ?", req.params.id, function(err) {
         if (err) return sendResponse(res, 500, err.message);
         sendResponse(res, 200, { eliminados: this.changes });
     });
+});
+
+// 6. GET /api/health - Endpoint de salud para DevOps
+app.get('/api/health', (req, res) => {
+    sendResponse(res, 200, { status: "OK", mensaje: "API funcionando y conectada" });
 });
 
 app.get('/backup', (req, res) => {
