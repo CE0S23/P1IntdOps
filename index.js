@@ -34,7 +34,6 @@ app.post('/usuarios', (req, res) => {
     });
 });
 
-// 3. GET /usuarios/:id - Obtener un usuario específico por ID
 app.get('/usuarios/:id', (req, res) => {
     db.get("SELECT * FROM usuarios WHERE id = ?", [req.params.id], (err, row) => {
         if (err) return sendResponse(res, 500, err.message);
@@ -43,7 +42,6 @@ app.get('/usuarios/:id', (req, res) => {
     });
 });
 
-// 4. PUT /usuarios/:id - Actualizar un usuario por ID
 app.put('/usuarios/:id', (req, res) => {
     const { nombre, rol_id } = req.body;
     db.run("UPDATE usuarios SET nombre = ?, rol_id = ? WHERE id = ?", [nombre, rol_id, req.params.id], function(err) {
@@ -52,8 +50,6 @@ app.put('/usuarios/:id', (req, res) => {
         sendResponse(res, 200, { mensaje: "Usuario actualizado exitosamente" });
     });
 });
-
-// 5. DELETE /usuarios/:id - Eliminar un usuario por ID
 app.delete('/usuarios/:id', (req, res) => {
     db.run("DELETE FROM usuarios WHERE id = ?", req.params.id, function(err) {
         if (err) return sendResponse(res, 500, err.message);
@@ -61,9 +57,8 @@ app.delete('/usuarios/:id', (req, res) => {
     });
 });
 
-// 6. GET /api/health - Endpoint de salud para DevOps
 app.get('/api/health', (req, res) => {
-    sendResponse(res, 200, { status: "OK", mensaje: "API funcionando y conectada" });
+    sendResponse(res, 200, { status: "OK", mensaje: "API funcionando y conectada ORlando" });
 });
 
 app.get('/backup', (req, res) => {
@@ -74,7 +69,6 @@ app.get('/backup', (req, res) => {
     });
 });
 
-// 10. Endpoint para Vaciar la BD
 app.delete('/vaciar', (req, res) => {
     db.serialize(() => {
         db.run("DELETE FROM usuarios");
@@ -84,15 +78,11 @@ app.delete('/vaciar', (req, res) => {
         });
     });
 });
-
-// --- MEJORA: SERVIDOR SOCKET TCP ---
 const net = require('net');
 
 const tcpServer = net.createServer((socket) => {
     socket.on('data', (data) => {
         const comando = data.toString().trim();
-        
-        // 1. Lógica para {insert:<element>}
         if (comando.startsWith('{insert:') && comando.endsWith('}')) {
             // Extrae el JSON que viene dentro del formato
             const elementoJson = comando.substring(8, comando.length - 1);
@@ -106,7 +96,6 @@ const tcpServer = net.createServer((socket) => {
                 socket.write("Error: Formato JSON inválido.\n");
             }
         } 
-        // 2. Lógica para {get:<element>}
         else if (comando.startsWith('{get:') && comando.endsWith('}')) {
             // Extrae el ID solicitado
             const id = comando.substring(5, comando.length - 1);
@@ -120,8 +109,6 @@ const tcpServer = net.createServer((socket) => {
         }
     });
 });
-
-// Encendemos los servidores y los guardamos en variables
 const server = app.listen(80, () => {
     console.log('Servidor backend ejecutándose en el puerto 80');
 });
@@ -129,6 +116,4 @@ const server = app.listen(80, () => {
 const tcp = tcpServer.listen(6061, () => {
     console.log('Servidor Socket TCP ejecutándose en el puerto 6061');
 });
-
-// Exportamos todo para que Jest pueda probarlo y apagarlo
 module.exports = { app, server, tcp };
