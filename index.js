@@ -58,7 +58,7 @@ app.delete('/usuarios/:id', (req, res) => {
 });
 
 app.get('/api/health', (req, res) => {
-    sendResponse(res, 200, { status: "OK 124", mensaje: "API funcionando y conectada ORlandopronan" });
+    sendResponse(res, 200, { status: "OK", mensaje: "API funciona ok" });
 });
 
 app.get('/backup', (req, res) => {
